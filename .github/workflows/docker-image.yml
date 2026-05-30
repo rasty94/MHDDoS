@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/mhprodev/mhddos:${{ github.sha }},ghcr.io/mhprodev/mhddos:latest
+          tags: ghcr.io/mhprodev/mhcheck:${{ github.sha }},ghcr.io/mhprodev/mhcheck:latest

