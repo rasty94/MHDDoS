@@ -3,9 +3,9 @@
 This document lists recommended architectural, performance, and feature improvements for the MHcheck repository.
 
 ## 🐳 Docker & Build Optimization
-- [ ] **Optimize Build Context (`.dockerignore`)**
+- [x] **Optimize Build Context (`.dockerignore`)**
   * *Problem:* Currently, building the Docker image transfers over `448 MB` of local build context (e.g., the virtual environment `venv/`, git history, python cache files).
-  * *Solution:* Create a `.dockerignore` file in the root directory to exclude heavy folders and prevent copying development cache to the container.
+  * *Solution:* Create a `.dockerignore` file in the root directory to exclude heavy folders and prevent copying development cache to the container. (Completed)
 - [ ] **Migrate to `uv` inside Dockerfile**
   * *Problem:* Standard `pip` dependency resolution and wheel compilation take a long time during container builds (around 40 seconds).
   * *Solution:* Integrate Astral's `uv` inside the `Dockerfile` for near-instant package installation.
