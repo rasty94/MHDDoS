@@ -1,0 +1,19 @@
+# Exclude python virtual environment and caches
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+
+# Exclude git repository metadata
+.git/
+.github/
+.gitignore
+
+# Exclude editor and OS files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak

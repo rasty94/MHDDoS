@@ -9,6 +9,14 @@ services:
     volumes:
       - ./config.json:/app/config.json
       - ./files:/app/files
-     
-    
-    
+
+  dashboard:
+    build: .
+    container_name: mhcheck-dashboard
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./config.json:/app/config.json
+      - ./files:/app/files
+    restart: unless-stopped
