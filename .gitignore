@@ -1,4 +1,26 @@
-venv
-/.idea/
-files/proxies/*
+# Virtual environment
+venv/
+.venv/
+
+# IDE & OS files
+.idea/
+.vscode/
 .DS_Store
+
+# Caches
+__pycache__/
+*.pyc
+.ruff_cache/
+.streamlit/
+
+# App-specific runtime files
+files/proxies/*
+!files/proxies/http.txt
+
+# Temporary scripts and logs
+ruff_check.txt
+ruff_output.txt
+ruff_output_fix.txt
+modularize.py
+refactor.py
+start.py.new

@@ -3,10 +3,10 @@ import subprocess
 import time
 import re
 import sys
-import os
 import threading
 from pathlib import Path
 import pandas as pd
+import psutil
 
 # Page Configuration
 st.set_page_config(
@@ -371,8 +371,20 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+PRESETS = {
+    "None": {},
+    "Layer 7 Bypass CF": {"layer": "Layer 7 (Application)", "method": "BYPASS", "duration": 120, "threads": 200, "socks_type": "5 - SOCKS5", "rpc": 50},
+    "Layer 4 UDP Flood": {"layer": "Layer 4 (Transport / Network)", "method": "UDP", "duration": 300, "threads": 500, "l4_mode": "Direct (No Proxies / Reflector)"},
+}
+
+# Extract Preset if Selected
+selected_preset = st.sidebar.selectbox('Load Preset (Optional)', list(PRESETS.keys()))
+pz = PRESETS[selected_preset]
+
 # Select layer
-layer = st.sidebar.radio("Select Layer", ["Layer 7 (Application)", "Layer 4 (Transport / Network)"])
+layer_index = 0 if pz.get("layer", "Layer 7 (Application)") == "Layer 7 (Application)" else 1
+layer = st.sidebar.radio("Select Layer", ["Layer 7 (Application)", "Layer 4 (Transport / Network)"], index=layer_index)
 
 # Dynamically populate methods
 if layer == "Layer 7 (Application)":
@@ -380,22 +392,20 @@ if layer == "Layer 7 (Application)":
 else:
     methods_list = sorted(list(Methods.LAYER4_METHODS))
 
-method = st.sidebar.selectbox("Attack Method", methods_list)
+method_index = methods_list.index(pz["method"]) if "method" in pz and pz["method"] in methods_list else 0
+method = st.sidebar.selectbox("Attack Method", methods_list, index=method_index)
 
 # Inputs
 target_input = st.sidebar.text_input("Target URL / Host", placeholder="http://example.com" if layer == "Layer 7 (Application)" else "1.1.1.1:80")
-duration = st.sidebar.number_input("Duration (seconds)", min_value=10, max_value=86400, value=60, step=10)
-threads = st.sidebar.slider("Threads", min_value=1, max_value=2000, value=100, step=10)
+duration = st.sidebar.number_input("Duration (seconds)", min_value=10, max_value=86400, value=pz.get("duration", 60), step=10)
+threads = st.sidebar.slider("Threads", min_value=1, max_value=2000, value=pz.get("threads", 100), step=10)
 
 # Layer 7 settings
 if layer == "Layer 7 (Application)":
     st.sidebar.markdown("---")
     st.sidebar.markdown("**Layer 7 Parameters**")
-    socks_type = st.sidebar.selectbox(
-        "Socks Type",
-        ["0 - ALL", "1 - HTTP", "4 - SOCKS4", "5 - SOCKS5", "6 - RANDOM"],
-        index=3
-    )
+    s_types = ["0 - ALL", "1 - HTTP", "4 - SOCKS4", "5 - SOCKS5", "6 - RANDOM"]
+    socks_type = st.sidebar.selectbox("Socks Type", s_types, index=s_types.index(pz.get("socks_type", "5 - SOCKS5")))
     socks_val = socks_type.split(" - ")[0]
     
     proxy_file = st.sidebar.text_input("Proxy File Name", value="http.txt", placeholder="e.g. proxy.txt")
@@ -471,7 +481,7 @@ if state.running:
 
 
 # ================= MAIN PAGE LAYOUT =================
-tab1, tab2, tab3 = st.tabs(["🖥️ Stress Tester", "🛠️ Network Utilities", "📋 Live Console Logs"])
+tab1, tab2, tab3, tab4 = st.tabs(["🖥️ Stress Tester", "🛠️ Network Utilities", "📋 Live Console Logs", "🛡️ Proxy Manager"])
 
 with tab1:
     # Status card container
@@ -485,6 +495,15 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
     
+
+    # System Resource Monitor
+    st.markdown("<h4 style='font-family: Orbitron; color: #ff4c4c; margin-top: 1.5rem;'>📠 HOST HEALTH</h4>", unsafe_allow_html=True)
+    c_cpu, c_mem = st.columns(2)
+    with c_cpu:
+        st.metric(label="CPU Utilization", value=f"{psutil.cpu_percent()}%")
+    with c_mem:
+        st.metric(label="Memory Utilization", value=f"{psutil.virtual_memory().percent}%")
+
     # KPIs Grid
     c_tgt, c_mth, c_pps, c_bps, c_rem = st.columns(5)
     
@@ -555,6 +574,13 @@ with tab1:
         with col_chart2:
             st.markdown("<p style='text-align:center; font-weight:bold; color:#66fcf1;'>Bandwidth (MB/s)</p>", unsafe_allow_html=True)
             st.line_chart(df, x="Elapsed (s)", y="BPS (MB/s)", color="#66fcf1", height=300)
+
+        st.markdown("<hr style='border: 1px solid #1f2833;'/>", unsafe_allow_html=True)
+        col_exp1, col_exp2 = st.columns([1, 4])
+        with col_exp1:
+            csv = df.to_csv(index=False)
+            st.download_button(label="📥 Export Stats (CSV)", data=csv, file_name='stress_test_stats.csv', mime='text/csv')
+
 
 with tab2:
     st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>🛠️ CORE NETWORK UTILITIES</h3>", unsafe_allow_html=True)
@@ -690,7 +716,31 @@ with tab3:
     else:
         st.code("No logs available. Trigger a stress test to view stdout here.", language="text")
 
+with tab4:
+    st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>🛡️ PROXY MANAGER</h3>", unsafe_allow_html=True)
+    st.info("Download and test proxies directly from providers configured in config.json.")
+    
+    col_p1, col_p2 = st.columns(2)
+    with col_p1:
+        proxy_type_sel = st.selectbox("Proxy Type to Download", ["0 - ALL", "1 - HTTP", "4 - SOCKS4", "5 - SOCKS5", "6 - RANDOM"])
+    with col_p2:
+        proxy_filename = st.text_input("Save As:", value="http.txt")
+        
+    if st.button("🚀 Download & Verify Proxies"):
+        with st.spinner("Downloading and verifying..."):
+            from utils.proxy import handleProxyList
+            try:
+                # Type from str
+                ptype = proxy_type_sel.split(" - ")[0]
+                ptype_int = int(ptype)
+                res = handleProxyList({'__dir__': Path(__file__).parent}, proxy_filename, ptype_int)
+                st.success(f"Operation completed! Saved to {proxy_filename}. Found proxies.")
+            except Exception as e:
+                st.error(f"Error handling proxy list: {e}")
+
+
 # Refresh the dashboard if the attack subprocess is actively running
 if state.running:
     time.sleep(0.8)
     st.rerun()
+

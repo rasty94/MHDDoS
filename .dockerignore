@@ -5,6 +5,7 @@ __pycache__/
 *.pyo
 *.pyd
 .python-version
+.ruff_cache/
 
 # Exclude git repository metadata
 .git/
@@ -17,3 +18,11 @@ __pycache__/
 .DS_Store
 *.swp
 *.bak
+
+# Temporary scripts and logs
+ruff_check.txt
+ruff_output.txt
+ruff_output_fix.txt
+modularize.py
+refactor.py
+start.py.new
