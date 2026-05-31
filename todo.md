@@ -19,15 +19,10 @@ Este documento lista tareas propuestas, priorizadas y las nuevas integraciones O
 - [x] Configurar `pre-commit` (ruff, black, isort)
 
 ## Observabilidad, seguridad y documentación (Baja/Medio)
-- [x] Exponer métricas Prometheus y endpoints de health/readiness (implementado en `utils/prometheus_metrics.py`)
-- [x] Añadir límites de seguridad y checks de recursos (CPU/RAM/concurrency) (implementado en `utils/security_limits.py`)
+- [x] Exponer métricas Prometheus y endpoints de health/readiness (implementado en `utils/security.py`)
+- [x] Añadir límites de seguridad y checks de recursos (CPU/RAM/concurrency) (implementado en `utils/security.py`)
 - [x] Documentación: `README.md` (ejemplos de OSINT), `CONTRIBUTING.md`, `CHANGELOG.md`
 - [x] Integrar módulos OSINT en app Streamlit
-
-## Nuevas sub-tareas derivadas (A Integrar)
-- [ ] Inicializar el servidor nativo de métricas Prometheus directamente al levantar `app.py`.
-- [ ] Lanzar el deamon `ResourceMonitor` de `security_limits.py` concurrentemente en `app.py`.
-- [ ] Sumar los incrementos a las métricas Prometheus `OSINT_REQUESTS` dentro de `app.py`.
 
 ## Notas sobre integraciones OSINT
 - theHarvester: se puede invocar por CLI o envolver sus módulos. Preferible implementar como wrapper que normalice outputs (json) y gestione timeouts.
