@@ -1,0 +1,11 @@
+{
+    "name": "Ejemplo L7 Bypass",
+    "target": "example.com",
+    "port": 443,
+    "method": "HTTP-FLOOD",
+    "duration": 300,
+    "threads": 50,
+    "kwargs": {
+        "bypass_cf": true
+    }
+}

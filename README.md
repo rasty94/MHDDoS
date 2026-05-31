@@ -98,6 +98,24 @@ Our social's💻
 
 ### If u Like the project, leave a star on the repository!
 
+## 🔍 NEW: Intelligence Gathering (OSINT) & CLI
+MHcheck now includes a modern **OSINT framework**! It integrates powerful external tools right into the project via an interactive CLI and Streamlit Dashboard:
+- **theHarvester**: Subdomains, Emails, IPs.
+- **Shodan**: Search connected devices or perform deep IP lookups.
+- **Mr.Holmes**: Custom Interactive wrapper footprinting.
+
+**Run the new CLI Tool:**
+```shell script
+python3 cli.py --help
+python3 cli.py osint shodan 1.1.1.1
+python3 cli.py osint theharvester example.com
+```
+
+**Run the new UI Dashboard (Streamlit):**
+```shell script
+streamlit run app.py
+```
+
 ## Downloads
 
 You can download it from [GitHub Releases](https://github.com/MatrixTM/MHcheck/releases)

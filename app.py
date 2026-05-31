@@ -8,6 +8,11 @@ from pathlib import Path
 import pandas as pd
 import psutil
 
+from utils.security import start_metrics_server, SecurityGuard, REQUESTS_TOTAL
+start_metrics_server(port=8000)
+
+guard = SecurityGuard()
+
 # Page Configuration
 st.set_page_config(
     page_title="MHcheck Stress Tester Dashboard",
@@ -181,6 +186,12 @@ except ImportError:
         ALL_METHODS = LAYER7_METHODS.union(LAYER4_METHODS)
     ping = None
     ToolsConsole = None
+
+# OSINT Wrappers
+from utils.osint.shodan_client import ShodanAdapter
+from utils.osint.theharvester_wrapper import TheHarvesterAdapter
+from utils.osint.mrholmes_wrapper import MrHolmesAdapter
+from utils.config_model import load_config
 
 # Parsers to convert formatted strings back to float numbers
 def parse_human_number(s):
@@ -467,11 +478,20 @@ if st.sidebar.button("💥 LAUNCH STRESS TEST", use_container_width=True, disabl
                 cmd_args = [method, target_url_fmt, str(threads), str(duration), reflector_file]
                 
     if cmd_args:
-        success = launch_attack_process(cmd_args, target_val, method, duration)
-        if success:
-            st.toast("Stress test launched successfully!", icon="🔥")
+        is_safe, reason = guard.check_safe_to_run(threads)
+        if not is_safe:
+            st.error(f"Security Alert: Cannot start test. {reason}")
         else:
-            st.error("Failed to launch stress test subprocess.")
+            success = launch_attack_process(cmd_args, target_val, method, duration)
+            if success:
+                st.toast("Stress test launched successfully!", icon="🔥")
+                
+                # Simple heuristic metric tracking for demonstration
+                from utils.common import Methods
+                layer = "7" if method in Methods.LAYER7_METHODS else "4"
+                REQUESTS_TOTAL.labels(method=method, layer=layer).inc()
+            else:
+                st.error("Failed to launch stress test subprocess.")
 
 if state.running:
     if st.sidebar.button("🛑 STOP / ABORT TEST", use_container_width=True, type="secondary"):
@@ -481,7 +501,13 @@ if state.running:
 
 
 # ================= MAIN PAGE LAYOUT =================
-tab1, tab2, tab3, tab4 = st.tabs(["🖥️ Stress Tester", "🛠️ Network Utilities", "📋 Live Console Logs", "🛡️ Proxy Manager"])
+tab1, tab2, tab5, tab3, tab4 = st.tabs([
+    "🖥️ Stress Tester", 
+    "🛠️ Network Utilities", 
+    "🔍 OSINT Tools", 
+    "📋 Live Console Logs", 
+    "🛡️ Proxy Manager"
+])
 
 with tab1:
     # Status card container
@@ -704,6 +730,68 @@ with tab2:
                         st.error(f"DNS resolver execution failure: {e}")
             else:
                 st.warning("Please enter a domain name.")
+
+with tab5:
+    st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>🔍 OSINT TOOLS</h3>", unsafe_allow_html=True)
+    st.info("Passive and Active Intelligence Gathering Modules.")
+
+    o_tab1, o_tab2, o_tab3 = st.tabs(["🌐 theHarvester", "⚙️ Shodan", "🕵️ Mr.Holmes"])
+    
+    with o_tab1:
+        st.markdown("#### The Harvester (Email, Subdomain & IP Lookup)")
+        osint_domain = st.text_input("Target Domain (e.g. example.com):", key="th_domain")
+        osint_sources = st.text_input("Sources (comma separated, default: 'all'):", value="all", key="th_sources")
+        osint_limit = st.number_input("Limit Results:", min_value=10, max_value=5000, value=500, key="th_limit")
+        
+        if st.button("🚀 Run theHarvester", key="th_run"):
+            if not osint_domain:
+                st.warning("Please enter a target domain.")
+            else:
+                with st.spinner(f"Running theHarvester on {osint_domain}..."):
+                    adapter = TheHarvesterAdapter()
+                    result = adapter.search_domain(osint_domain, sources=osint_sources, limit=osint_limit)
+                    st.success("Harvester scan complete!")
+                    st.json(result.model_dump())
+
+    with o_tab2:
+        st.markdown("#### Shodan (IP Information & Discovery)")
+        app_config = load_config()
+        if not app_config or not app_config.shodan_api_key:
+            st.warning("⚠️ Shodan API Key is not configured in `config.json` (`shodan_api_key`). Features may not work.", icon="⚠️")
+
+        shodan_mode = st.radio("Mode:", ["IP Lookup", "Search Query"])
+        shodan_query = st.text_input("IP or Query:", key="shodan_query")
+        
+        if st.button("🚀 Run Shodan", key="shodan_run"):
+            if not shodan_query:
+                st.warning("Please enter an IP or Search Query.")
+            else:
+                with st.spinner("Querying Shodan API..."):
+                    adapter = ShodanAdapter(api_key=app_config.shodan_api_key if app_config else "")
+                    if shodan_mode == "IP Lookup":
+                        res = adapter.lookup_ip(shodan_query)
+                        if res:
+                            st.success(f"IP Lookup successful for {shodan_query}")
+                            st.json(res.model_dump())
+                        else:
+                            st.error("No results or error from Shodan.")
+                    else:
+                        res = adapter.search(shodan_query)
+                        st.json(res.model_dump())
+
+    with o_tab3:
+        st.markdown("#### Mr.Holmes (UI/CLI OSINT Framework)")
+        st.info("Wrapper for Mr.Holmes interactive modules.")
+        mh_target = st.text_input("Target Username / Email / Domain:", key="mh_target")
+        
+        if st.button("🚀 Run Mr.Holmes", key="mh_run"):
+            if not mh_target:
+                st.warning("Please enter a target.")
+            else:
+                with st.spinner("Preparing Mr.Holmes runner..."):
+                    adapter = MrHolmesAdapter("./Mr.Holmes")
+                    res = adapter.run_basic_lookup(mh_target)
+                    st.json(res.model_dump())
 
 with tab3:
     st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>📋 LIVE PROCESS OUTPUT</h3>", unsafe_allow_html=True)
