@@ -193,6 +193,7 @@ from utils.osint.theharvester_wrapper import TheHarvesterAdapter
 from utils.osint.mrholmes_wrapper import MrHolmesAdapter
 from utils.osint.nmap_wrapper import NmapAdapter
 from utils.osint.wpscan_wrapper import WPScanAdapter
+from utils.osint.cyber_analysis import CyberAnalysisAdapter
 from utils.config_model import load_config
 
 # Parsers to convert formatted strings back to float numbers
@@ -735,6 +736,39 @@ with tab2:
                 st.warning("Please enter a domain name.")
 
 with tab5:
+    st.markdown("<h3 style='font-family: Orbitron; color: #66fcf1;'>🧪 AUTHORIZED CYBER ANALYSIS</h3>", unsafe_allow_html=True)
+    st.info("Passive checks for domains, web endpoints and TLS posture on assets you are authorized to assess.")
+
+    c_tab1, c_tab2 = st.tabs(["🌐 Domain Posture", "🔐 Web / TLS Posture"])
+
+    with c_tab1:
+        st.markdown("#### Domain posture review")
+        cyber_domain = st.text_input("Target domain:", placeholder="example.com", key="cy_domain")
+
+        if st.button("🧪 Run Domain Analysis", key="cy_domain_run"):
+            if not cyber_domain:
+                st.warning("Please enter a domain.")
+            else:
+                with st.spinner(f"Analyzing {cyber_domain}..."):
+                    adapter = CyberAnalysisAdapter()
+                    res = adapter.analyze_domain(cyber_domain)
+                    st.success("Domain analysis complete.")
+                    st.json(res.model_dump())
+
+    with c_tab2:
+        st.markdown("#### Web / TLS posture review")
+        cyber_url = st.text_input("Target URL:", placeholder="https://example.com", key="cy_url")
+
+        if st.button("🔐 Run URL Analysis", key="cy_url_run"):
+            if not cyber_url:
+                st.warning("Please enter a URL.")
+            else:
+                with st.spinner(f"Inspecting {cyber_url}..."):
+                    adapter = CyberAnalysisAdapter()
+                    res = adapter.analyze_url(cyber_url)
+                    st.success("Web analysis complete.")
+                    st.json(res.model_dump())
+
     st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>🔍 OSINT TOOLS</h3>", unsafe_allow_html=True)
     st.info("Passive and Active Intelligence Gathering Modules.")
 

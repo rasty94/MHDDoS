@@ -1,15 +1,17 @@
 import typer
 import json
 import os
-from typing import Optional
 
 from utils.osint.shodan_client import ShodanAdapter
 from utils.osint.theharvester_wrapper import TheHarvesterAdapter
 from utils.osint.mrholmes_wrapper import MrHolmesAdapter
+from utils.osint.cyber_analysis import CyberAnalysisAdapter
 
 app = typer.Typer(help="OSINT CLI Tool and Preset Runner")
 osint_app = typer.Typer(help="OSINT Integration Commands")
+cyber_app = typer.Typer(help="Authorized cyber analysis commands")
 app.add_typer(osint_app, name="osint")
+app.add_typer(cyber_app, name="cyber")
 
 # We will attempt to load the Shodan API key from config.json if it exists
 def get_shodan_key() -> str:
@@ -82,6 +84,39 @@ def mrholmes_lookup(target: str):
     typer.secho(f"Running Mr.Holmes wrapper for {target}...", fg=typer.colors.YELLOW)
     
     result = adapter.run_basic_lookup(target)
+    typer.echo(result.model_dump_json(indent=2))
+
+
+@cyber_app.command("domain")
+def cyber_domain(domain: str = typer.Argument(..., help="Domain to analyze")):
+    """
+    Run passive DNS posture checks for an authorized domain.
+    """
+    adapter = CyberAnalysisAdapter()
+    typer.secho(f"Analyzing domain posture for {domain}...", fg=typer.colors.CYAN)
+    result = adapter.analyze_domain(domain)
+    typer.echo(result.model_dump_json(indent=2))
+
+
+@cyber_app.command("url")
+def cyber_url(url: str = typer.Argument(..., help="URL to analyze")):
+    """
+    Inspect HTTP security headers and TLS posture for an authorized URL.
+    """
+    adapter = CyberAnalysisAdapter()
+    typer.secho(f"Analyzing web posture for {url}...", fg=typer.colors.CYAN)
+    result = adapter.analyze_url(url)
+    typer.echo(result.model_dump_json(indent=2))
+
+
+@cyber_app.command("host")
+def cyber_host(host: str = typer.Argument(..., help="IP address or hostname to analyze")):
+    """
+    Run reverse DNS and host resolution checks for an authorized host.
+    """
+    adapter = CyberAnalysisAdapter()
+    typer.secho(f"Analyzing host posture for {host}...", fg=typer.colors.CYAN)
+    result = adapter.analyze_target(host)
     typer.echo(result.model_dump_json(indent=2))
 
 

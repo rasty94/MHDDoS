@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 
 from utils.osint.shodan_client import ShodanAdapter
@@ -60,7 +59,7 @@ def test_theharvester_adapter(mock_subprocess_run, tmp_path):
         temp_path = cmd[f_idx + 1]
         
         # Write dummy output
-        with open(temp_path + ".json", 'w') as f:
+        with open(temp_path, 'w') as f:
             f.write('{"hosts": ["api.test.com:1.2.3.4"], "emails": ["admin@test.com"], "ips": ["1.2.3.4", "5.6.7.8"]}')
         
         mock_result = MagicMock()
@@ -82,7 +81,8 @@ def test_theharvester_adapter(mock_subprocess_run, tmp_path):
     assert result.emails[0].address == "admin@test.com"
 
 
-def test_mrholmes_adapter_placeholder():
+@patch("utils.osint.mrholmes_wrapper.MrHolmesAdapter.is_available", return_value=True)
+def test_mrholmes_adapter_placeholder(mock_is_available):
     adapter = MrHolmesAdapter(mrholmes_dir="/tmp/fake")
     result = adapter.run_basic_lookup("test")
     

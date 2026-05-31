@@ -1,9 +1,8 @@
 import shodan
 import logging
-from typing import Optional, List
+from typing import Optional
 from .model import HostInfo, PortInfo, OSINTUnifiedResult, OSINTMetadata
 import uuid
-import datetime
 
 logger = logging.getLogger(__name__)
 

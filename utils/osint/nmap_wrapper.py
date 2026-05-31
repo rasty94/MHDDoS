@@ -1,7 +1,6 @@
 import nmap
 import uuid
 import logging
-from typing import Optional
 from utils.osint.model import OSINTUnifiedResult, OSINTMetadata, HostInfo, PortInfo
 
 logger = logging.getLogger(__name__)

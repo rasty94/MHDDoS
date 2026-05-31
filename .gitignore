@@ -24,3 +24,4 @@ ruff_output_fix.txt
 modularize.py
 refactor.py
 start.py.new
+.agents

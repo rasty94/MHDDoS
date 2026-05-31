@@ -1,9 +1,7 @@
-import subprocess
 import os
 import uuid
 import logging
-from typing import Optional
-from .model import OSINTUnifiedResult, OSINTMetadata, DomainInfo
+from .model import OSINTUnifiedResult, OSINTMetadata
 
 logger = logging.getLogger(__name__)
 

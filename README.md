@@ -98,6 +98,20 @@ Our social's💻
 
 ### If u Like the project, leave a star on the repository!
 
+## Cyber Analysis
+
+Added a safer, authorized-only analysis layer for passive security review of domains and web endpoints:
+- DNS posture checks for A, AAAA, MX, NS, TXT and CAA records.
+- Web posture checks for HTTP headers and common browser security headers.
+- TLS certificate inspection for expiry and issuer visibility.
+
+**Run the new CLI commands:**
+```shell script
+python3 cli.py cyber domain example.com
+python3 cli.py cyber url https://example.com
+python3 cli.py cyber host 8.8.8.8
+```
+
 ## 🔍 NEW: Intelligence Gathering (OSINT) & CLI
 MHcheck now includes a modern **OSINT framework**! It integrates powerful external tools right into the project via an interactive CLI and Streamlit Dashboard:
 - **theHarvester**: Subdomains, Emails, IPs.

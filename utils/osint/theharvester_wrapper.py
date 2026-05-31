@@ -4,8 +4,7 @@ import os
 import uuid
 import logging
 import tempfile
-from typing import Optional
-from .model import OSINTUnifiedResult, OSINTMetadata, DomainInfo, EmailInfo, HostInfo
+from .model import OSINTUnifiedResult, OSINTMetadata, DomainInfo, EmailInfo
 
 logger = logging.getLogger(__name__)
 
