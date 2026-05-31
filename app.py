@@ -501,12 +501,13 @@ if state.running:
 
 
 # ================= MAIN PAGE LAYOUT =================
-tab1, tab2, tab5, tab3, tab4 = st.tabs([
+tab1, tab2, tab5, tab3, tab4, tab6 = st.tabs([
     "🖥️ Stress Tester", 
     "🛠️ Network Utilities", 
     "🔍 OSINT Tools", 
     "📋 Live Console Logs", 
-    "🛡️ Proxy Manager"
+    "🛡️ Proxy Manager",
+    "⚙️ Configuration"
 ])
 
 with tab1:
@@ -825,6 +826,39 @@ with tab4:
                 st.success(f"Operation completed! Saved to {proxy_filename}. Found proxies.")
             except Exception as e:
                 st.error(f"Error handling proxy list: {e}")
+
+with tab6:
+    st.markdown("### ⚙️ System Configuration (config.json)")
+    st.markdown("Edit the global settings and proxy lists directly. Ensure the file complies with standard JSON formatting.")
+    
+    import json
+    config_path = Path("config.json")
+    
+    # Read current configuration
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            current_config = f.read()
+    else:
+        current_config = "{}"
+        
+    edited_config = st.text_area("JSON Configuration", value=current_config, height=400)
+    
+    if st.button("💾 Save Configuration", use_container_width=True):
+        try:
+            parsed = json.loads(edited_config)
+            
+            # Additional layer of validation via Pydantic model
+            from utils.config_model import MHCheckConfig
+            MHCheckConfig(**parsed)
+            
+            with open(config_path, "w") as f:
+                json.dump(parsed, f, indent=4)
+            st.success("Configuration validated and saved successfully!")
+            
+            time.sleep(1)
+            st.rerun()
+        except Exception as e:
+            st.error(f"Validation Error: The provided JSON is invalid or missing fields. Details: {e}")
 
 
 # Refresh the dashboard if the attack subprocess is actively running
