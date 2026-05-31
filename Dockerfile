@@ -5,8 +5,19 @@ LABEL maintainer="rasty94"
 
 WORKDIR /app
 
-# Install git and clean up apt cache to minimize image size
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Install git, nmap, and ruby dependencies (for WPScan), then clean up apt cache to minimize image size
+RUN apt-get update && apt-get install -y \
+    git \
+    nmap \
+    ruby \
+    ruby-dev \
+    build-essential \
+    libcurl4-openssl-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install WPScan using RubyGems
+RUN gem install wpscan
 
 # Download Astral's uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
