@@ -10,7 +10,7 @@ Este documento lista tareas propuestas, priorizadas y las nuevas integraciones O
 - [x] Integrar `theHarvester` (módulo wrapper): crear `utils/osint/theharvester.py`, envolver consultas DNS, emails, subdominios.
 - [x] Integrar `Mr.Holmes` (módulo wrapper): crear `utils/osint/mrholmes.py`, exponer detección e indicadores relevantes.
 - [x] Integración Shodan API: crear `utils/osint/shodan_client.py`, soportar búsquedas, host lookup y límites de rate.
-- [ ] Escribir tests para integraciones OSINT (pytest + fixtures de mock)
+- [x] Escribir tests para integraciones OSINT (pytest + fixtures de mock)
 
 ## Tareas de calidad y refactor (Media)
 - [x] Añadir CLI (`typer`) para ejecutar presets y módulos OSINT sin Streamlit
@@ -19,10 +19,15 @@ Este documento lista tareas propuestas, priorizadas y las nuevas integraciones O
 - [x] Configurar `pre-commit` (ruff, black, isort)
 
 ## Observabilidad, seguridad y documentación (Baja/Medio)
-- [ ] Exponer métricas Prometheus y endpoints de health/readiness
-- [ ] Añadir límites de seguridad y checks de recursos (CPU/RAM/concurrency)
-- [ ] Documentación: `README.md` (ejemplos de OSINT), `CONTRIBUTING.md`, `CHANGELOG.md`
+- [x] Exponer métricas Prometheus y endpoints de health/readiness (implementado en `utils/prometheus_metrics.py`)
+- [x] Añadir límites de seguridad y checks de recursos (CPU/RAM/concurrency) (implementado en `utils/security_limits.py`)
+- [x] Documentación: `README.md` (ejemplos de OSINT), `CONTRIBUTING.md`, `CHANGELOG.md`
 - [x] Integrar módulos OSINT en app Streamlit
+
+## Nuevas sub-tareas derivadas (A Integrar)
+- [ ] Inicializar el servidor nativo de métricas Prometheus directamente al levantar `app.py`.
+- [ ] Lanzar el deamon `ResourceMonitor` de `security_limits.py` concurrentemente en `app.py`.
+- [ ] Sumar los incrementos a las métricas Prometheus `OSINT_REQUESTS` dentro de `app.py`.
 
 ## Notas sobre integraciones OSINT
 - theHarvester: se puede invocar por CLI o envolver sus módulos. Preferible implementar como wrapper que normalice outputs (json) y gestione timeouts.
