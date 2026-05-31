@@ -191,6 +191,8 @@ except ImportError:
 from utils.osint.shodan_client import ShodanAdapter
 from utils.osint.theharvester_wrapper import TheHarvesterAdapter
 from utils.osint.mrholmes_wrapper import MrHolmesAdapter
+from utils.osint.nmap_wrapper import NmapAdapter
+from utils.osint.wpscan_wrapper import WPScanAdapter
 from utils.config_model import load_config
 
 # Parsers to convert formatted strings back to float numbers
@@ -736,7 +738,7 @@ with tab5:
     st.markdown("<h3 style='font-family: Orbitron; color: #ff4c4c;'>🔍 OSINT TOOLS</h3>", unsafe_allow_html=True)
     st.info("Passive and Active Intelligence Gathering Modules.")
 
-    o_tab1, o_tab2, o_tab3 = st.tabs(["🌐 theHarvester", "⚙️ Shodan", "🕵️ Mr.Holmes"])
+    o_tab1, o_tab2, o_tab3, o_tab4, o_tab5 = st.tabs(["🌐 theHarvester", "⚙️ Shodan", "🕵️ Mr.Holmes", "🗺️ Nmap", "🐛 WPScan"])
     
     with o_tab1:
         st.markdown("#### The Harvester (Email, Subdomain & IP Lookup)")
@@ -792,6 +794,36 @@ with tab5:
                 with st.spinner("Preparing Mr.Holmes runner..."):
                     adapter = MrHolmesAdapter("./Mr.Holmes")
                     res = adapter.run_basic_lookup(mh_target)
+                    st.json(res.model_dump())
+
+    with o_tab4:
+        st.markdown("#### Nmap (Network Mapper)")
+        st.info("Port scanning and service detection.")
+        nmap_target = st.text_input("Target IP/Domain:", key="nm_target")
+        nmap_args = st.text_input("Arguments:", value="-sV -T4 -F", key="nm_args")
+        
+        if st.button("🚀 Run Nmap", key="nm_run"):
+            if not nmap_target:
+                st.warning("Please enter a target.")
+            else:
+                with st.spinner("Running Nmap scan..."):
+                    adapter = NmapAdapter()
+                    res = adapter.scan(nmap_target, nmap_args)
+                    st.json(res.model_dump())
+
+    with o_tab5:
+        st.markdown("#### WPScan (WordPress Vulnerability Scanner)")
+        st.info("Scanner for WordPress instances (Requires wpscan installed natively or API Token).")
+        wps_target = st.text_input("Target URL (e.g. http://example.com):", key="wps_target")
+        wps_token = st.text_input("WPScan API Token (optional):", type="password", key="wps_token")
+        
+        if st.button("🚀 Run WPScan", key="wps_run"):
+            if not wps_target:
+                st.warning("Please enter a target URL.")
+            else:
+                with st.spinner("Running WPScan..."):
+                    adapter = WPScanAdapter(api_token=wps_token if wps_token else None)
+                    res = adapter.scan(wps_target)
                     st.json(res.model_dump())
 
 with tab3:
