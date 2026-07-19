@@ -184,11 +184,11 @@ def generate_pdf_report(
     for f in findings:
         sev = str(f.get("severity", "info")).upper()
         line = f"[{sev}] {f.get('category', '')}: {f.get('detail', '')}"
-        pdf.multi_cell(0, 5, _ascii(line))
+        pdf.multi_cell(0, 5, _ascii(line), new_x="LMARGIN", new_y="NEXT")
         rec = f.get("recommendation")
         if rec:
             pdf.set_text_color(90, 90, 90)
-            pdf.multi_cell(0, 5, _ascii(f"    -> {rec}"))
+            pdf.multi_cell(0, 5, _ascii(f"    -> {rec}"), new_x="LMARGIN", new_y="NEXT")
             pdf.set_text_color(0, 0, 0)
     pdf.ln(3)
 
@@ -199,6 +199,7 @@ def generate_pdf_report(
         pdf.multi_cell(
             0, 5,
             _ascii(f"{name}: {scorecard.compliance_percent}% compliant ({scorecard.controls_compliant}/{scorecard.controls_total})"),
+            new_x="LMARGIN", new_y="NEXT",
         )
 
     pdf.output(path)

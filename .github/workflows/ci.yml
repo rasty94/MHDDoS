@@ -43,8 +43,9 @@ jobs:
     - name: Run Pytest with coverage gate
       run: |
         pytest tests/ -v \
-          --cov=audit_platform --cov=utils.scoring --cov=utils.storage \
-          --cov=utils.inventory --cov=utils.alerts --cov=utils.compliance \
-          --cov=utils.reporting --cov=utils.auth --cov=utils.ai_remediation \
-          --cov=utils.osint.vuln_intel \
+          --cov=audit_platform.scoring --cov=audit_platform.storage \
+          --cov=audit_platform.inventory --cov=audit_platform.alerts \
+          --cov=audit_platform.compliance --cov=audit_platform.reporting \
+          --cov=audit_platform.auth --cov=audit_platform.ai_remediation \
+          --cov=audit_platform.osint.vuln_intel \
           --cov-fail-under=75

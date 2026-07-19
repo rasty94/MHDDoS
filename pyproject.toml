@@ -78,20 +78,11 @@ ignore = ["E501"]
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
-# Type-check only the maintained platform surface.
+# Type-check only the maintained platform surface (all platform modules,
+# incl. the osint adapters, now live under audit_platform/).
 files = [
     "audit_platform",
     "api.py",
-    "utils/scoring.py",
-    "utils/storage.py",
-    "utils/inventory.py",
-    "utils/alerts.py",
-    "utils/scheduler.py",
-    "utils/compliance.py",
-    "utils/reporting.py",
-    "utils/auth.py",
-    "utils/ai_remediation.py",
-    "utils/osint/vuln_intel.py",
 ]
 check_untyped_defs = true
 warn_unused_ignores = false
