@@ -1,6 +1,7 @@
-import psutil
 import logging
-from prometheus_client import start_http_server, Counter, Gauge
+
+import psutil
+from prometheus_client import Counter, Gauge, start_http_server
 
 logger = logging.getLogger(__name__)
 
@@ -39,18 +40,18 @@ class SecurityGuard:
         """
         cpu_current = psutil.cpu_percent(interval=0.1)
         ram_current = psutil.virtual_memory().percent
-        
+
         # Update metrics
         CPU_USAGE.set(cpu_current)
         RAM_USAGE.set(ram_current)
-        
+
         if cpu_current >= self.max_cpu_percent:
             return False, f"CPU usage too high ({cpu_current}% >= {self.max_cpu_percent}%)"
-            
+
         if ram_current >= self.max_ram_percent:
             return False, f"Memory usage too high ({ram_current}% >= {self.max_ram_percent}%)"
-            
+
         if requested_threads > self.max_threads:
             return False, f"Requested threads exceed safeguard limit ({requested_threads} > {self.max_threads})"
-            
+
         return True, "Safe"

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
- 
+
+import ssl
+from base64 import b64encode
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
@@ -9,15 +11,27 @@ from math import log2, trunc
 from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
+from random import choice as randchoice
+from random import randint
 from re import compile
-from random import choice as randchoice, randint
-from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
-                    SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
-                    gethostname, socket)
+from socket import (
+    AF_INET,
+    IP_HDRINCL,
+    IPPROTO_ICMP,
+    IPPROTO_IP,
+    IPPROTO_TCP,
+    IPPROTO_UDP,
+    SOCK_DGRAM,
+    SOCK_RAW,
+    SOCK_STREAM,
+    TCP_NODELAY,
+    gethostbyname,
+    gethostname,
+    socket,
+)
 from ssl import CERT_NONE, SSLContext, create_default_context
-import ssl
 from struct import pack as data_pack
-from subprocess import run, PIPE
+from subprocess import PIPE, run
 from sys import argv
 from sys import exit as _exit
 from threading import Event, Thread
@@ -26,17 +40,16 @@ from typing import Any, List, Set, Tuple
 from urllib import parse
 from uuid import UUID, uuid4
 
-from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
-from PyRoxy import Tools as ProxyTools
 from certifi import where
 from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
-from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
+from impacket.ImpactPacket import ICMP, IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
-from requests import Response, Session, exceptions, get, cookies
+from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
+from PyRoxy import Tools as ProxyTools
+from requests import Response, Session, cookies, exceptions, get
 from yarl import URL
-from base64 import b64encode
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -470,7 +483,7 @@ class Layer4(Thread):
             "MCPE": self.MCPE,
             "FIVEM": self.FIVEM,
             "FIVEM-TOKEN": self.FIVEMTOKEN,
-            "OVH-UDP": self.OVHUDP, 
+            "OVH-UDP": self.OVHUDP,
             "MINECRAFT": self.MINECRAFT,
             "CPS": self.CPS,
             "CONNECTION": self.CONNECTION,
@@ -586,7 +599,7 @@ class Layer4(Thread):
             username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
             password = b64encode(username.encode()).decode()[:8].title()
             Tools.send(s, Minecraft.login(self.protocolid, username))
-            
+
             sleep(1.5)
 
             Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
@@ -908,7 +921,7 @@ class HttpFlood(Thread):
         for key, value in self.methods.items():
             if name == key:
                 self.SENT_FLOOD = value
-                
+
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
@@ -1818,9 +1831,9 @@ if __name__ == '__main__':
 
                         else:
                             logger.setLevel("DEBUG")
-                
+
                 protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
-                
+
                 if method == "MCBOT":
                     with suppress(Exception), socket(AF_INET, SOCK_STREAM) as s:
                         Tools.send(s, Minecraft.handshake((target, port), protocolid, 1))
@@ -1828,7 +1841,7 @@ if __name__ == '__main__':
 
                         protocolid = Tools.protocolRex.search(str(s.recv(1024)))
                         protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"] if not protocolid else int(protocolid.group(1))
-                        
+
                         if 47 < protocolid > 758:
                             protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
 

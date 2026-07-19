@@ -1,4 +1,14 @@
-version: "3.9"
+# Network hardening applied to the audit-platform services (dashboard, api):
+#   - no-new-privileges blocks privilege escalation via setuid binaries
+#   - cap_drop: ALL removes all Linux capabilities (none are needed to serve HTTP)
+#   - a dedicated bridge network isolates inter-service traffic
+# The inherited stress-tester service is left on the default config.
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
 
 services:
   mhcheck:
@@ -11,12 +21,55 @@ services:
       - ./files:/app/files
 
   dashboard:
+    <<: *hardening
     build: .
     container_name: mhcheck-dashboard
     command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
+    environment:
+      - MHCHECK_DB_PATH=/app/data/audit_history.db
+    networks:
+      - audit-net
     volumes:
       - ./config.json:/app/config.json
       - ./files:/app/files
+      - audit-data:/app/data
     restart: unless-stopped
+
+  api:
+    <<: *hardening
+    build: .
+    container_name: mhcheck-api
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - MHCHECK_DB_PATH=/app/data/audit_history.db
+    networks:
+      - audit-net
+    volumes:
+      - ./config.json:/app/config.json
+      - audit-data:/app/data
+    restart: unless-stopped
+
+  scheduler:
+    <<: *hardening
+    build: .
+    container_name: mhcheck-scheduler
+    command: python cli.py fleet scheduler --interval 3600
+    environment:
+      - MHCHECK_DB_PATH=/app/data/audit_history.db
+    networks:
+      - audit-net
+    volumes:
+      - ./config.json:/app/config.json
+      - audit-data:/app/data
+    restart: unless-stopped
+
+networks:
+  audit-net:
+    driver: bridge
+
+volumes:
+  audit-data:

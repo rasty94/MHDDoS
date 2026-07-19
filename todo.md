@@ -1,32 +1,63 @@
 # MHcheck Improvement Roadmap
 
-Este documento lista tareas propuestas, priorizadas y las nuevas integraciones OSINT solicitadas.
+Las 7 épicas estratégicas de la plataforma de **auditoría de postura continua**
+fueron implementadas el 2026-06-11. Este archivo conserva el estado y lista las
+mejoras incrementales que quedan por encima de ellas.
 
-- ## Estado actual
-- [ ] Tareas completadas: ver `done.md` (registro histórico)
+## Estado actual
+- [x] Tareas completadas: ver [done.md](file:///Users/antoniorodriguez/GITHUB-RASTY/megascript/done.md) (registro histórico)
 
-## Tareas prioritarias (Alta)
-- [x] Actualizar `todo.md` con tareas detalladas
-- [x] Integrar `theHarvester` (módulo wrapper): crear `utils/osint/theharvester.py`, envolver consultas DNS, emails, subdominios.
-- [x] Integrar `Mr.Holmes` (módulo wrapper): crear `utils/osint/mrholmes.py`, exponer detección e indicadores relevantes.
-- [x] Integración Shodan API: crear `utils/osint/shodan_client.py`, soportar búsquedas, host lookup y límites de rate.
-- [x] Escribir tests para integraciones OSINT (pytest + fixtures de mock)
+## Épicas implementadas ✅
+- [x] **A — Inventario, monitorización y alertas**: activos en SQLite, scheduler de flota, alertas (webhook/Slack/Telegram/email)
+- [x] **B — API-first y gate CI/CD**: FastAPI (`api.py`), comando `cyber gate`, workflows Trivy y audit-gate
+- [x] **C — Inteligencia de vulnerabilidades**: CVE/CVSS vía NVD/OSV, HIBP, fuentes premium theHarvester
+- [x] **D — Compliance e informes**: OWASP ASVS/CIS/PCI-DSS/NIST + informe HTML con tendencia
+- [x] **E — Auth, RBAC y multi-tenant**: PBKDF2, roles, tenant; login gate en Streamlit
+- [x] **F — Remediación asistida por IA**: Claude (claude-opus-4-8) con fallback heurístico
+- [x] **G — Fundación**: paquete `audit_platform`, ruff 0 errores, mypy limpio, gate cobertura 75%, Docker hardening, tests CLI, Mr.Holmes retirado
 
-## Tareas de calidad y refactor (Media)
-- [x] Añadir CLI (`typer`) para ejecutar presets y módulos OSINT sin Streamlit
-- [x] Validación de `config.json` y `presets` con `pydantic`
-- [x] Añadir CI (GitHub Actions) para lint/tests/builds (ruff, black, mypy, pytest)
-- [x] Configurar `pre-commit` (ruff, black, isort)
+---
 
-## Observabilidad, seguridad y documentación (Baja/Medio)
-- [x] Exponer métricas Prometheus y endpoints de health/readiness (implementado en `utils/security.py`)
-- [x] Añadir límites de seguridad y checks de recursos (CPU/RAM/concurrency) (implementado en `utils/security.py`)
-- [x] Documentación: `README.md` (ejemplos de OSINT), `CONTRIBUTING.md`, `CHANGELOG.md`
-- [x] Integrar módulos OSINT en app Streamlit
+## Mejoras incrementales pendientes (sobre las épicas)
 
-## Notas sobre integraciones OSINT
-- theHarvester: se puede invocar por CLI o envolver sus módulos. Preferible implementar como wrapper que normalice outputs (json) y gestione timeouts.
-- Mr.Holmes: evaluar opciones para importar como dependencia o ejecutar como proceso aislado; normalizar salidas.
-- Shodan: requiere clave API; añadir configuración segura en `config.json` y comprobar límites.
+### Auditoría continua
+- [x] Export de informe a PDF nativo (hoy HTML imprimible) sin dependencias de sistema pesadas
+- [x] Programar el `FleetScheduler` como servicio/cron en producción (deployment dedicado)
+- [x] Panel de inventario y gestión de activos dentro del dashboard de Streamlit
 
-Si quieres, implemento una de las integraciones (theHarvester/Mr.Holmes/Shodan) ahora como primer PR. Indica cuál prefieres arrancar primero.
+### Inteligencia y cobertura
+- [x] Cachear enriquecimiento CVE (NVD/OSV) para respetar rate limits y acelerar re-escaneos
+- [x] Caso de uso real de HIBP en la UI (consulta de emails de theHarvester)
+- [x] Aumentar cobertura de tests del scheduler y de los canales de alertas (envío real mockeado)
+
+### Plataforma y distribución
+- [x] Empaquetar `audit_platform` como distribución instalable (pyproject build/entry points)
+- [x] Persistencia de sesión de auth en Streamlit más robusta (cookies firmadas / expiración)
+- [x] Documentar despliegue multi-tenant y rotación de credenciales
+
+---
+
+## Épica H — Limpieza de estructura y deuda técnica
+
+_Auditoría estructural (graphify + ponytail) del 2026-07-19. El grafo reveló dos
+proyectos conviviendo en un repo: el legado ofensivo (`start.py`, `app.py`) y la
+plataforma de auditoría (`audit_platform/`, `api.py`, `cli.py`, `utils/`)._
+
+### Cortes (bajo riesgo — nada de esto está referenciado)
+
+- [x] **Borrar `methods/layer4.py` + `methods/layer7.py`** (~1112 líneas) — código muerto: nada hacía `from methods`. Copias duplicadas de `Layer4`/`HttpFlood` que ya viven en `start.py`. Limpiadas también las referencias a `methods*` en `pyproject.toml`. Tests 59/59 verdes tras el borrado.
+- [x] **Borrar scripts one-off de dev en la raíz**: `refactor.py`, `modularize.py`, `fix_common_imports.py` (~162 líneas). Toqueteos AST de usar-y-tirar.
+- [x] **Borrar/ignorar dumps regenerables**: `ruff_output.txt`, `ruff_output_fix.txt`, `ruff_check.txt`, `.coverage`, `skills-lock.json` → añadidos a `.gitignore` (+ `.mypy_cache/`, `.pytest_cache/`).
+- [x] **Borrar `common_header.py`** (208 líneas) — código muerto: nadie lo importa. Duplicaba `bcolors`/`Counter` (ya presentes en `start.py` y `utils/common.py`). Referencia en `pyproject.toml` limpiada.
+- [x] **Fix bug latente en `utils/osint/vuln_intel.py`** — `Vulnerability` usada en anotaciones (líneas 48/66) antes de definirse (línea 83). Funcionaba solo por lazy-annotations de Python 3.14 (PEP 649); rompería en <3.14. Resuelto con `from __future__ import annotations`. Ruff limpio, 59/59 tests.
+- [x] **Consolidar dependencias en `pyproject.toml`** (fuente única) — `requirements.txt` borrado. En el proceso se detectó que pyproject estaba **incompleto**: faltaba `pyroxy` (dep de runtime real, usada en `start.py`/`utils/common.py`) → `pip install .` producía un paquete roto. Añadidos `pyroxy` (git) y `[project.optional-dependencies].dev` (pytest, mypy, ruff, black, isort, etc.). Migrados Dockerfile y CI a `-r pyproject.toml`, CONTRIBUTING a `pip install -e ".[dev]"`, README a `pip install .`. Resolución verificada con uv (runtime 98 pkgs, dev 123). Validar el build de Docker/CI en el próximo run.
+- [x] **Retirar `mrholmes` del todo** — wrapper deprecated y no-funcional (placeholder + warning), estaba expuesto como pestaña "🕵️ Mr.Holmes" en el dashboard y comando `cyber osint mrholmes`. Borrado `utils/osint/mrholmes_wrapper.py`, pestaña de Streamlit (tabs 5→4), comando CLI, imports en `app.py`/`cli.py`, test, ignores en `pyproject.toml` y mención en `README.md`. Ruff limpio, 58/58 tests.
+
+### Estructura (decisiones de fondo)
+
+- [x] **Separar plataforma de legado en el layout**: movidos los 9 módulos de plataforma (`auth, scoring, storage, inventory, scheduler, compliance, alerts, reporting, ai_remediation`) + el subpaquete `osint/` de `utils/` a `audit_platform/`. `utils/` conserva solo legado + observabilidad (`common, proxy, networking, config_model, security`). Reescritos ~35 imports (formas `from utils.X`, `from utils import X`, y un `@patch("utils...")`). `audit_platform` deja de ser fachada y pasa a ser paquete real. Ruff limpio, 58/58 tests, smoke-test de barrel/entrypoints OK.
+- [x] **Resolver la extracción a medias de `methods/`**: resuelto borrando `methods/` (código muerto, ver arriba).
+- [x] **Revisar el barrel `audit_platform/__init__.py`**: cero callers internos (todos importaban `utils.*` directo); es la API pública pretendida (épica G). Se mantiene, pero ahora re-exporta módulos reales del propio paquete en vez de una fachada sobre `utils/`. Docstring actualizado.
+- [x] **Cohesión de "Audit Platform & Auth"**: la mezcla venía de que la plataforma vivía en `utils/`. Con el movimiento, la plataforma queda como paquete cohesionado y separado del legado.
+
+_Impacto estimado de los cortes: ~-1274 líneas, -1 fuente de deps, -5 archivos de ruido._

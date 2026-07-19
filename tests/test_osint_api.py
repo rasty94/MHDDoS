@@ -1,14 +1,14 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from utils.osint.shodan_client import ShodanAdapter
-from utils.osint.theharvester_wrapper import TheHarvesterAdapter
-from utils.osint.mrholmes_wrapper import MrHolmesAdapter
+from audit_platform.osint.shodan_client import ShodanAdapter
+from audit_platform.osint.theharvester_wrapper import TheHarvesterAdapter
+
 
 def test_shodan_adapter_no_key():
     adapter = ShodanAdapter(api_key="")
     result = adapter.lookup_ip("8.8.8.8")
     assert result is None
-    
+
     search_result = adapter.search("apache")
     assert search_result.hosts == []
 
@@ -16,7 +16,7 @@ def test_shodan_adapter_no_key():
 def test_shodan_adapter_lookup(mock_shodan_class):
     mock_instance = MagicMock()
     mock_shodan_class.return_value = mock_instance
-    
+
     # Mocking the host method response
     mock_instance.host.return_value = {
         "ip_str": "1.1.1.1",
@@ -37,7 +37,7 @@ def test_shodan_adapter_lookup(mock_shodan_class):
 
     adapter = ShodanAdapter(api_key="mock_key")
     result = adapter.lookup_ip("1.1.1.1")
-    
+
     assert result.ip == "1.1.1.1"
     assert "one.one.one.one" in result.hostnames
     assert result.organization == "Cloudflare"
@@ -50,42 +50,32 @@ def test_shodan_adapter_lookup(mock_shodan_class):
 @patch("subprocess.run")
 def test_theharvester_adapter(mock_subprocess_run, tmp_path):
     adapter = TheHarvesterAdapter(executable_path="theHarvester")
-    
-    # In the try block of the wrapper, it creates a temp file. 
+
+    # In the try block of the wrapper, it creates a temp file.
     # We will mock subprocess run to just write a fake JSON to the path that it tells us
     def side_effect_run(cmd, *args, **kwargs):
         # find the -f argument
         f_idx = cmd.index("-f")
         temp_path = cmd[f_idx + 1]
-        
+
         # Write dummy output
         with open(temp_path, 'w') as f:
             f.write('{"hosts": ["api.test.com:1.2.3.4"], "emails": ["admin@test.com"], "ips": ["1.2.3.4", "5.6.7.8"]}')
-        
+
         mock_result = MagicMock()
         mock_result.returncode = 0
         return mock_result
 
     mock_subprocess_run.side_effect = side_effect_run
-    
+
     result = adapter.search_domain("test.com")
-    
+
     assert len(result.domains) == 1
     domain_info = result.domains[0]
     assert domain_info.name == "test.com"
     assert "api.test.com" in domain_info.subdomains
     assert "1.2.3.4" in domain_info.ips
     assert "5.6.7.8" in domain_info.ips
-    
+
     assert len(result.emails) == 1
     assert result.emails[0].address == "admin@test.com"
-
-
-@patch("utils.osint.mrholmes_wrapper.MrHolmesAdapter.is_available", return_value=True)
-def test_mrholmes_adapter_placeholder(mock_is_available):
-    adapter = MrHolmesAdapter(mrholmes_dir="/tmp/fake")
-    result = adapter.run_basic_lookup("test")
-    
-    assert result.metadata.source == "mrholmes"
-    assert result.raw_data is not None
-    assert "Not fully implemented" in result.raw_data.get("status", "")

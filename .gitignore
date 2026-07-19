@@ -11,11 +11,18 @@ venv/
 __pycache__/
 *.pyc
 .ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
 .streamlit/
 
 # App-specific runtime files
 files/proxies/*
 !files/proxies/http.txt
+
+# Audit history database
+*.db
+audit_history.db
 
 # Temporary scripts and logs
 ruff_check.txt
@@ -23,5 +30,8 @@ ruff_output.txt
 ruff_output_fix.txt
 modularize.py
 refactor.py
+fix_common_imports.py
 start.py.new
+skills-lock.json
 .agents
+graphify-out/

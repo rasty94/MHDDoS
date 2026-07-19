@@ -116,7 +116,8 @@ python3 cli.py cyber host 8.8.8.8
 MHcheck now includes a modern **OSINT framework**! It integrates powerful external tools right into the project via an interactive CLI and Streamlit Dashboard:
 - **theHarvester**: Subdomains, Emails, IPs.
 - **Shodan**: Search connected devices or perform deep IP lookups.
-- **Mr.Holmes**: Custom Interactive wrapper footprinting.
+- **Nmap**: Port scanning and service/version detection.
+- **WPScan**: WordPress vulnerability scanning.
 
 **Run the new CLI Tool:**
 ```shell script
@@ -160,13 +161,13 @@ You can read it from [GitHub Wiki](https://github.com/MatrixTM/MHcheck/wiki)
 ```shell script
 git clone https://github.com/MatrixTM/MHcheck.git
 cd MHcheck
-pip install -r requirements.txt
+pip install .
 ```
 
 **One-Line Installing on Fresh VPS**
 
 ```shell script
-apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pip make cmake automake autoconf m4 build-essential git && git clone https://github.com/MatrixTM/MHcheck.git && cd MH* && pip3 install -r requirements.txt
+apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pip make cmake automake autoconf m4 build-essential git && git clone https://github.com/MatrixTM/MHcheck.git && cd MH* && pip3 install .
 ```
 
 **Docker**

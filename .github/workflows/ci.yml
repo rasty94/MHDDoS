@@ -23,8 +23,8 @@ jobs:
         python -m pip install --upgrade pip
         # Optional: installing 'uv' for faster resolution
         pip install uv
-        uv pip install --system -r requirements.txt
-        uv pip install --system ruff black isort pytest requests-mock
+        uv pip install --system -r pyproject.toml
+        uv pip install --system ruff black isort pytest requests-mock mypy pytest-cov
 
     - name: Check formatting with Black & isort
       run: |
@@ -35,7 +35,17 @@ jobs:
     - name: Lint with Ruff
       run: |
         ruff check .
-        
-    - name: Run Pytest
+
+    - name: Type-check the audit platform with mypy
       run: |
-        pytest tests/ -v
+        mypy
+
+    - name: Run Pytest with coverage gate
+      run: |
+        pytest tests/ -v \
+          --cov=audit_platform.scoring --cov=audit_platform.storage \
+          --cov=audit_platform.inventory --cov=audit_platform.alerts \
+          --cov=audit_platform.compliance --cov=audit_platform.reporting \
+          --cov=audit_platform.auth --cov=audit_platform.ai_remediation \
+          --cov=audit_platform.osint.vuln_intel \
+          --cov-fail-under=75
