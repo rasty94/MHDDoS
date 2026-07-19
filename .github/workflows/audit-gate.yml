@@ -1,0 +1,38 @@
+name: Posture Audit Gate
+
+# Audits a live target and fails if its security posture grade is below the
+# threshold. Use as a deployment gate or run on a schedule against production.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target to audit (domain or URL)"
+        required: true
+        default: "example.com"
+      min_grade:
+        description: "Minimum acceptable posture grade (A-F)"
+        required: true
+        default: "B"
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dnspython requests pydantic typer
+
+      - name: Run posture gate
+        run: |
+          python cli.py cyber gate "${{ github.event.inputs.target }}" \
+            --min-grade "${{ github.event.inputs.min_grade }}"

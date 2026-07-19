@@ -1,23 +1,32 @@
-# much smaller image than debian based python images
-FROM python:3.14-slim
+FROM python:3.14-alpine
 
 LABEL maintainer="rasty94"
 
 WORKDIR /app
 
-# Install git, nmap, and ruby dependencies (for WPScan), then clean up apt cache to minimize image size
-RUN apt-get update && apt-get install -y \
+# Install runtime dependencies
+RUN apk add --no-cache \
     git \
     nmap \
     ruby \
-    ruby-dev \
-    build-essential \
-    libcurl4-openssl-dev \
-    zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
+    ruby-bigdecimal \
+    libffi \
+    libxml2 \
+    libxslt \
+    curl \
+    zlib
 
-# Install WPScan using RubyGems
-RUN gem install wpscan
+# Install build dependencies, build and install WPScan, then remove build dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    ruby-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt-dev \
+    curl-dev \
+    zlib-dev \
+    && gem install wpscan --no-document \
+    && apk del .build-deps
 
 # Download Astral's uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/

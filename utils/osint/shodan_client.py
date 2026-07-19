@@ -1,8 +1,10 @@
-import shodan
 import logging
-from typing import Optional
-from .model import HostInfo, PortInfo, OSINTUnifiedResult, OSINTMetadata
 import uuid
+from typing import Optional
+
+import shodan
+
+from .model import HostInfo, OSINTMetadata, OSINTUnifiedResult, PortInfo
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +18,10 @@ class ShodanAdapter:
         if not self.api_key:
             logger.error("Shodan API key is missing.")
             return None
-            
+
         try:
             host_data = self.api.host(ip_address)
-            
+
             ports = []
             for item in host_data.get('data', []):
                 ports.append(PortInfo(
@@ -48,7 +50,7 @@ class ShodanAdapter:
                 vulnerabilities=vulnerabilities
             )
             return host_info
-            
+
         except shodan.APIError as e:
             logger.error(f"Shodan API error for IP {ip_address}: {e}")
             return None
@@ -63,16 +65,16 @@ class ShodanAdapter:
             source="shodan",
             query=query
         )
-        
+
         result = OSINTUnifiedResult(metadata=metadata)
-        
+
         if not self.api_key:
             logger.error("Shodan API key is missing.")
             return result
-            
+
         try:
             search_results = self.api.search(query, limit=100) # limiting for safety
-            
+
             # Simple parsing of results
             hosts_dict = {}
             for item in search_results.get('matches', []):
@@ -85,18 +87,18 @@ class ShodanAdapter:
                         organization=item.get('org'),
                         ports=[]
                     )
-                
+
                 hosts_dict[ip].ports.append(PortInfo(
                     port=item.get('port'),
                     protocol=item.get('transport', 'tcp'),
                     service=item.get('_shodan', {}).get('module'),
                     banner=item.get('data', '')
                 ))
-            
+
             result.hosts = list(hosts_dict.values())
             result.raw_data = {"shodan_search_total": search_results.get('total')}
-            
+
         except shodan.APIError as e:
             logger.error(f"Shodan API error for query '{query}': {e}")
-            
+
         return result

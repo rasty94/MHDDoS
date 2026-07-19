@@ -1,7 +1,8 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl
 import json
 import logging
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, HttpUrl
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class AppConfig(BaseModel):
     MINECRAFT_DEFAULT_PROTOCOL: int = Field(default=47)
     proxy_providers: List[ProxyProvider] = Field(alias="proxy-providers", default_factory=list)
     shodan_api_key: str = Field(default="")
-    
+
 class PresetConfig(BaseModel):
     name: str = Field(..., description="Name of the preset")
     target: str = Field(..., description="Target IP or Domain")

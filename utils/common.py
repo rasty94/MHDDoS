@@ -1,4 +1,6 @@
 import os
+import ssl
+from base64 import b64encode
 
 # ruff: noqa: F401
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -10,15 +12,27 @@ from math import log2, trunc
 from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
+from random import choice as randchoice
+from random import randint
 from re import compile
-from random import choice as randchoice, randint
-from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
-                    SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
-                    gethostname, socket)
+from socket import (
+    AF_INET,
+    IP_HDRINCL,
+    IPPROTO_ICMP,
+    IPPROTO_IP,
+    IPPROTO_TCP,
+    IPPROTO_UDP,
+    SOCK_DGRAM,
+    SOCK_RAW,
+    SOCK_STREAM,
+    TCP_NODELAY,
+    gethostbyname,
+    gethostname,
+    socket,
+)
 from ssl import CERT_NONE, SSLContext, create_default_context
-import ssl
 from struct import pack as data_pack
-from subprocess import run, PIPE
+from subprocess import PIPE, run
 from sys import argv
 from sys import exit as _exit
 from threading import Event, Thread
@@ -27,17 +41,16 @@ from typing import Any, List, Set, Tuple
 from urllib import parse
 from uuid import UUID, uuid4
 
-from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
-from PyRoxy import Tools as ProxyTools
 from certifi import where
 from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
-from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
+from impacket.ImpactPacket import ICMP, IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
-from requests import Response, Session, exceptions, get, cookies
+from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
+from PyRoxy import Tools as ProxyTools
+from requests import Response, Session, cookies, exceptions, get
 from yarl import URL
-from base64 import b64encode
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")

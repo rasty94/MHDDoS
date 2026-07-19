@@ -42,6 +42,8 @@ class TLSCertificateInfo(BaseModel):
     days_remaining: Optional[int] = None
     expired: bool = False
     sans: List[str] = Field(default_factory=list)
+    protocol_version: Optional[str] = None
+    cipher: Optional[str] = None
 
 
 class WebEndpointInfo(BaseModel):
@@ -250,12 +252,52 @@ class CyberAnalysisAdapter:
                         recommendation="Verify the certificate chain and target availability.",
                     )
                 )
+            elif report.tls:
+                report.findings.extend(self._evaluate_tls(report.tls))
 
         report.raw_data = {
             "final_url": getattr(response, "url", url) if response is not None else url,
             "status_code": getattr(response, "status_code", None) if response is not None else None,
         }
         return report
+
+    # Protocol versions considered deprecated/insecure by current TLS guidance.
+    WEAK_TLS_VERSIONS = {"SSLv2", "SSLv3", "TLSv1", "TLSv1.1"}
+    CERT_EXPIRY_WARNING_DAYS = 30
+
+    def _evaluate_tls(self, tls: TLSCertificateInfo) -> List[AnalysisFinding]:
+        findings: List[AnalysisFinding] = []
+
+        if tls.protocol_version in self.WEAK_TLS_VERSIONS:
+            findings.append(
+                AnalysisFinding(
+                    category="TLS",
+                    severity="high",
+                    detail=f"The endpoint negotiated a deprecated protocol: {tls.protocol_version}.",
+                    recommendation="Disable TLS 1.1 and earlier; require TLS 1.2 or 1.3.",
+                )
+            )
+
+        if tls.expired:
+            findings.append(
+                AnalysisFinding(
+                    category="TLS",
+                    severity="high",
+                    detail="The TLS certificate has expired.",
+                    recommendation="Renew the certificate immediately.",
+                )
+            )
+        elif tls.days_remaining is not None and tls.days_remaining <= self.CERT_EXPIRY_WARNING_DAYS:
+            findings.append(
+                AnalysisFinding(
+                    category="TLS",
+                    severity="medium",
+                    detail=f"The TLS certificate expires in {tls.days_remaining} day(s).",
+                    recommendation="Schedule certificate renewal before expiry to avoid an outage.",
+                )
+            )
+
+        return findings
 
     def _resolve_dns_records(self, name: str, record_type: str) -> List[str]:
         try:
@@ -289,10 +331,16 @@ class CyberAnalysisAdapter:
 
     def _inspect_tls(self, hostname: str, port: int) -> Optional[TLSCertificateInfo]:
         context = ssl.create_default_context()
+        protocol_version: Optional[str] = None
+        cipher: Optional[str] = None
         try:
+            certificate: Dict[str, Any] = {}
             with socket.create_connection((hostname, port), timeout=self.timeout) as sock:
                 with context.wrap_socket(sock, server_hostname=hostname) as secure_sock:
-                    certificate = secure_sock.getpeercert()
+                    certificate = dict(secure_sock.getpeercert() or {})
+                    protocol_version = secure_sock.version()
+                    negotiated = secure_sock.cipher()
+                    cipher = negotiated[0] if negotiated else None
 
             valid_from = self._parse_tls_datetime(certificate.get("notBefore"))
             valid_to = self._parse_tls_datetime(certificate.get("notAfter"))
@@ -316,6 +364,8 @@ class CyberAnalysisAdapter:
                 days_remaining=days_remaining,
                 expired=expired,
                 sans=sans,
+                protocol_version=protocol_version,
+                cipher=cipher,
             )
         except Exception as exc:
             logger.debug("TLS inspection failed for %s:%s: %s", hostname, port, exc)

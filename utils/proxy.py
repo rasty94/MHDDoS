@@ -1,5 +1,6 @@
 from utils.common import *
 
+
 class ProxyManager:
 
     @staticmethod

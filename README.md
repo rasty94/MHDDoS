@@ -116,7 +116,8 @@ python3 cli.py cyber host 8.8.8.8
 MHcheck now includes a modern **OSINT framework**! It integrates powerful external tools right into the project via an interactive CLI and Streamlit Dashboard:
 - **theHarvester**: Subdomains, Emails, IPs.
 - **Shodan**: Search connected devices or perform deep IP lookups.
-- **Mr.Holmes**: Custom Interactive wrapper footprinting.
+- **Nmap**: Port scanning and service/version detection.
+- **WPScan**: WordPress vulnerability scanning.
 
 **Run the new CLI Tool:**
 ```shell script

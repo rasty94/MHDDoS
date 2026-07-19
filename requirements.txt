@@ -1,3 +1,4 @@
+# Core / networking
 cloudscraper==1.2.71
 certifi==2024.7.4
 dnspython==2.6.1
@@ -8,18 +9,36 @@ icmplib>=2.1.1
 pyasn1==0.6.3
 pyroxy @ git+https://github.com/MatrixTM/PyRoxy.git
 yarl>=1.7.2
-streamlit>=1.35.0
-pydantic>=2.0.0
-shodan>=1.31.0
 
+# UI / CLI
+streamlit>=1.35.0
+extra-streamlit-components>=0.1.71
 typer>=0.9.0
 
-pytest>=7.4.0
-requests-mock>=1.11.0
-
-pre-commit>=3.5.0
+# Validation
 pydantic>=2.0.0
 
-prometheus-client>=0.17.1
-prometheus-client==0.20.0
+# OSINT / scanning
+shodan>=1.31.0
 python-nmap==0.7.1
+
+# API
+fastapi>=0.110.0
+uvicorn>=0.27.0
+httpx>=0.26.0
+
+# Reporting (pure-python PDF, no system libs)
+fpdf2>=2.7.0
+
+# AI-assisted remediation (optional at runtime; degrades gracefully if unset)
+anthropic>=0.40.0
+
+# Observability
+prometheus-client==0.20.0
+
+# Dev / tooling
+pytest>=7.4.0
+requests-mock>=1.11.0
+pre-commit>=3.5.0
+pytest-cov>=4.1.0
+mypy>=1.8.0

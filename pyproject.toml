@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mhcheck-audit-platform"
+version = "1.0.0"
+description = "Continuous security posture auditing platform (with inherited stress-testing tooling)."
+requires-python = ">=3.10"
+dependencies = [
+    "cloudscraper==1.2.71",
+    "certifi==2024.7.4",
+    "dnspython==2.6.1",
+    "requests==2.33.0",
+    "impacket==0.10.0",
+    "psutil>=5.9.3",
+    "icmplib>=2.1.1",
+    "pyasn1==0.6.3",
+    "yarl>=1.7.2",
+    "streamlit>=1.35.0",
+    "extra-streamlit-components>=0.1.71",
+    "typer>=0.9.0",
+    "pydantic>=2.0.0",
+    "shodan>=1.31.0",
+    "python-nmap==0.7.1",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.27.0",
+    "httpx>=0.26.0",
+    "fpdf2>=2.7.0",
+    "anthropic>=0.40.0",
+    "prometheus-client==0.20.0"
+]
+
+[project.scripts]
+cyber = "cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["audit_platform*", "utils*"]
+
+
+# ---------------------------------------------------------------------------
+# Ruff: the maintained audit platform is linted strictly; the inherited
+# offensive tooling (start.py, proxy/header helpers, the legacy
+# Streamlit monolith) is grandfathered so its
+# pre-existing style debt doesn't mask regressions in new code.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 140
+target-version = "py310"
+extend-exclude = ["venv", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Inherited offensive/runtime code — tolerate its existing patterns.
+"start.py" = ["E402", "E701", "E722", "F403", "F405", "F841", "E741", "F811", "B"]
+"utils/proxy.py" = ["F403", "F405", "E402", "E722"]
+"utils/networking.py" = ["F403", "F405", "F811", "E402", "E722"]
+"utils/common.py" = ["E402", "E701", "F403", "F405", "E722"]
+"app.py" = ["E402", "E701"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+# Type-check only the maintained platform surface.
+files = [
+    "audit_platform",
+    "api.py",
+    "utils/scoring.py",
+    "utils/storage.py",
+    "utils/inventory.py",
+    "utils/alerts.py",
+    "utils/scheduler.py",
+    "utils/compliance.py",
+    "utils/reporting.py",
+    "utils/auth.py",
+    "utils/ai_remediation.py",
+    "utils/osint/vuln_intel.py",
+]
+check_untyped_defs = true
+warn_unused_ignores = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
