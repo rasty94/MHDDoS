@@ -31,11 +31,11 @@ RUN apk add --no-cache --virtual .build-deps \
 # Download Astral's uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# copy requirements.txt for better caching 
-COPY requirements.txt .
+# copy dependency manifest first for better layer caching
+COPY pyproject.toml .
 
 # Install py dependencies using uv for near-instant installation
-RUN uv pip install --system --no-cache -r requirements.txt
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 # Copy all code at once  instead of copy code then files 
 COPY . .

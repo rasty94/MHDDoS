@@ -23,7 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         # Optional: installing 'uv' for faster resolution
         pip install uv
-        uv pip install --system -r requirements.txt
+        uv pip install --system -r pyproject.toml
         uv pip install --system ruff black isort pytest requests-mock mypy pytest-cov
 
     - name: Check formatting with Black & isort

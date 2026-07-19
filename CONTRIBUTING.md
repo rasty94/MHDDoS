@@ -12,7 +12,7 @@ Thank you for your interest in contributing! This document details the process f
 2. **Install Dependencies via `uv` or `pip`:**
    ```bash
    pip install uv
-   uv pip install -r requirements.txt
+   uv pip install -e ".[dev]"
    ```
 3. **Setup Pre-commit Hooks:**
    We enforce formatting (`black`), sorting (`isort`), and linting (`ruff`) on every commit.
