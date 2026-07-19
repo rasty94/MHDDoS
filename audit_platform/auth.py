@@ -17,7 +17,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from utils.storage import DEFAULT_DB_PATH, _connect
+from audit_platform.storage import DEFAULT_DB_PATH, _connect
 
 PBKDF2_ITERATIONS = 240_000
 

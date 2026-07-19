@@ -1,9 +1,12 @@
 """MHcheck Audit Platform.
 
-A cohesive, importable namespace for the continuous security-posture auditing
-platform, kept deliberately separate from the inherited offensive tooling
-(``methods/``, ``start.py``). Nothing in this package imports the attack code,
-so the platform can be reasoned about, tested and distributed on its own.
+The continuous security-posture auditing platform lives entirely in this
+package (auth, scoring, storage, inventory, scheduler, compliance, alerts,
+reporting, AI remediation and the ``osint`` adapters). It is kept deliberately
+separate from the inherited offensive tooling (``start.py`` and the legacy
+helpers still under ``utils/``): nothing here imports the attack code, so the
+platform can be reasoned about, tested and distributed on its own. This module
+re-exports the stable public surface.
 
 Public surface::
 
@@ -16,19 +19,19 @@ Public surface::
     )
 """
 
-from utils.alerts import Alert, dispatch, evaluate_drift
-from utils.auth import User, authenticate, create_user, has_permission
-from utils.compliance import ComplianceScorecard, evaluate_all, evaluate_compliance
-from utils.inventory import add_asset, delete_asset, list_assets
-from utils.osint.cyber_analysis import CyberAnalysisAdapter
-from utils.osint.vuln_intel import Vulnerability, enrich_cve
-from utils.reporting import generate_html_report, generate_pdf_report, save_html_report
-from utils.scheduler import FleetScheduler, run_fleet_audit
-from utils.scoring import PostureScore, score_findings
-from utils.storage import diff_scans, get_recent_scans, list_targets, save_scan
+from audit_platform.alerts import Alert, dispatch, evaluate_drift
+from audit_platform.auth import User, authenticate, create_user, has_permission
+from audit_platform.compliance import ComplianceScorecard, evaluate_all, evaluate_compliance
+from audit_platform.inventory import add_asset, delete_asset, list_assets
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter
+from audit_platform.osint.vuln_intel import Vulnerability, enrich_cve
+from audit_platform.reporting import generate_html_report, generate_pdf_report, save_html_report
+from audit_platform.scheduler import FleetScheduler, run_fleet_audit
+from audit_platform.scoring import PostureScore, score_findings
+from audit_platform.storage import diff_scans, get_recent_scans, list_targets, save_scan
 
 try:  # AI remediation is optional at runtime
-    from utils.ai_remediation import generate_remediation
+    from audit_platform.ai_remediation import generate_remediation
 except Exception:  # noqa: BLE001 - never block platform import on the optional AI dep
     generate_remediation = None  # type: ignore[assignment]
 

@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from utils import storage
+from audit_platform import storage
 
 
 @pytest.fixture

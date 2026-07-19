@@ -1,4 +1,4 @@
-from utils import ai_remediation
+from audit_platform import ai_remediation
 
 
 def test_heuristic_orders_by_severity(monkeypatch):

@@ -1,4 +1,4 @@
-from utils.osint import vuln_intel
+from audit_platform.osint import vuln_intel
 
 
 class _FakeResp:

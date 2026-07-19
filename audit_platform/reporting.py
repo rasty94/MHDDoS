@@ -10,8 +10,8 @@ import html
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from utils import compliance
-from utils.scoring import PostureScore
+from audit_platform import compliance
+from audit_platform.scoring import PostureScore
 
 GRADE_COLORS = {"A": "#28c76f", "B": "#28c76f", "C": "#ff9f43", "D": "#ff9f43", "F": "#ea5455"}
 SEVERITY_COLORS = {

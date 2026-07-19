@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from utils import auth
+from audit_platform import auth
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def test_unknown_user_rejected(db_path):
 
 def test_password_is_hashed_not_stored_plaintext(db_path):
     auth.create_user("carol", "plaintextpw", db_path=db_path)
-    from utils.storage import _connect
+    from audit_platform.storage import _connect
     with _connect(db_path) as conn:
         row = conn.execute("SELECT password_hash FROM users WHERE username='carol'").fetchone()
     assert "plaintextpw" not in row["password_hash"]

@@ -3,11 +3,11 @@ import os
 
 import typer
 
-from utils import auth, inventory, scheduler, storage
-from utils.osint.cyber_analysis import CyberAnalysisAdapter
-from utils.osint.shodan_client import ShodanAdapter
-from utils.osint.theharvester_wrapper import TheHarvesterAdapter
-from utils.scoring import score_findings
+from audit_platform import auth, inventory, scheduler, storage
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter
+from audit_platform.osint.shodan_client import ShodanAdapter
+from audit_platform.osint.theharvester_wrapper import TheHarvesterAdapter
+from audit_platform.scoring import score_findings
 
 app = typer.Typer(help="OSINT CLI Tool and Preset Runner")
 osint_app = typer.Typer(help="OSINT Integration Commands")
@@ -67,7 +67,7 @@ def shodan_lookup(ip: str = typer.Argument(..., help="IP address to lookup"),
         # Wrap the host info into the unified result artificially to just print json
         import uuid
 
-        from utils.osint.model import OSINTMetadata, OSINTUnifiedResult
+        from audit_platform.osint.model import OSINTMetadata, OSINTUnifiedResult
 
         host_info = adapter.lookup_ip(ip)
         result = OSINTUnifiedResult(
@@ -101,8 +101,8 @@ def nmap_scan(
     """
     Run an Nmap vulnerability scan and optionally enrich CVEs with CVSS intelligence.
     """
-    from utils.osint import vuln_intel
-    from utils.osint.nmap_wrapper import NmapAdapter
+    from audit_platform.osint import vuln_intel
+    from audit_platform.osint.nmap_wrapper import NmapAdapter
 
     adapter = NmapAdapter()
     typer.secho(f"Scanning {target} with Nmap (vulners)...", fg=typer.colors.CYAN)
@@ -250,7 +250,7 @@ def cyber_report(
     """
     Audit a target and write a branded HTML or native PDF audit report.
     """
-    from utils import reporting
+    from audit_platform import reporting
 
     adapter = CyberAnalysisAdapter()
     typer.secho(f"Auditing {target} and building report...", fg=typer.colors.CYAN)
@@ -280,7 +280,7 @@ def cyber_compliance(
     """
     Audit a target and show its compliance scorecard for a framework.
     """
-    from utils import compliance
+    from audit_platform import compliance
 
     adapter = CyberAnalysisAdapter()
     report = adapter.analyze_target(target)
@@ -304,7 +304,7 @@ def cyber_remediate(target: str = typer.Argument(..., help="Target to audit and 
     """
     Audit a target and produce a prioritized remediation plan (AI-assisted when ANTHROPIC_API_KEY is set).
     """
-    from utils import ai_remediation
+    from audit_platform import ai_remediation
 
     adapter = CyberAnalysisAdapter()
     typer.secho(f"Auditing {target} and building remediation plan...", fg=typer.colors.CYAN)

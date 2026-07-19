@@ -15,7 +15,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from utils.storage import DEFAULT_DB_PATH, _connect
+from audit_platform.storage import DEFAULT_DB_PATH, _connect
 
 ASSET_TYPES = ("domain", "url", "host")
 

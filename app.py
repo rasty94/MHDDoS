@@ -192,14 +192,14 @@ except ImportError:
 # OSINT Wrappers
 import os as _os
 
-from utils import auth, storage
+from audit_platform import auth, storage
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter
+from audit_platform.osint.nmap_wrapper import NmapAdapter
+from audit_platform.osint.shodan_client import ShodanAdapter
+from audit_platform.osint.theharvester_wrapper import TheHarvesterAdapter
+from audit_platform.osint.wpscan_wrapper import WPScanAdapter
+from audit_platform.scoring import score_findings
 from utils.config_model import load_config
-from utils.osint.cyber_analysis import CyberAnalysisAdapter
-from utils.osint.nmap_wrapper import NmapAdapter
-from utils.osint.shodan_client import ShodanAdapter
-from utils.osint.theharvester_wrapper import TheHarvesterAdapter
-from utils.osint.wpscan_wrapper import WPScanAdapter
-from utils.scoring import score_findings
 
 
 def _auth_gate():
@@ -913,11 +913,11 @@ with tab5:
                 if st.button("🔬 Show Drift", key="cy_diff_run"):
                     run_drift = True
             with col_html:
-                from utils import reporting
+                from audit_platform import reporting
                 recent = storage.get_recent_scans(selected, limit=1)
                 if recent:
                     report_data = recent[0]["report"]
-                    from utils.scoring import score_findings
+                    from audit_platform.scoring import score_findings
                     posture = score_findings(report_data.get("findings", []))
                     history = [s["score"] for s in reversed(storage.get_recent_scans(selected, limit=10))]
                     html_content = reporting.generate_html_report(report_data, posture, history)
@@ -931,7 +931,7 @@ with tab5:
             with col_pdf:
                 if recent:
                     report_data = recent[0]["report"]
-                    from utils.scoring import score_findings
+                    from audit_platform.scoring import score_findings
                     posture = score_findings(report_data.get("findings", []))
                     history = [s["score"] for s in reversed(storage.get_recent_scans(selected, limit=10))]
                     import tempfile
@@ -1032,7 +1032,7 @@ with tab5:
                 email_addresses = [e.get("address") for e in emails]
                 st.dataframe(pd.DataFrame({"Email Address": email_addresses}), use_container_width=True, hide_index=True)
 
-                from utils.osint.hibp import HIBPAdapter
+                from audit_platform.osint.hibp import HIBPAdapter
                 hibp_adapter = HIBPAdapter()
 
                 if not hibp_adapter.available:
@@ -1146,7 +1146,7 @@ with tab7:
 
     with fleet_col1:
         st.markdown("#### Registered Assets")
-        from utils import inventory
+        from audit_platform import inventory
         assets = inventory.list_assets(tenant=current_tenant)
         if not assets:
             st.info("No assets registered for this tenant.")
@@ -1221,7 +1221,7 @@ with tab7:
     with fleet_audit_col1:
         if st.button("⚡ Trigger Manual Fleet Audit", key="trigger_fleet_audit_btn"):
             with st.spinner("Auditing all fleet assets..."):
-                from utils import scheduler
+                from audit_platform import scheduler
                 results = scheduler.run_fleet_audit(tenant=current_tenant)
                 st.session_state["fleet_audit_results"] = results
                 st.success("Fleet audit completed!")

@@ -11,9 +11,9 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from utils import inventory, scheduler, storage
-from utils.osint.cyber_analysis import CyberAnalysisAdapter
-from utils.scoring import PostureScore, score_findings
+from audit_platform import inventory, scheduler, storage
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter
+from audit_platform.scoring import PostureScore, score_findings
 
 app = FastAPI(
     title="MHcheck Audit Platform API",

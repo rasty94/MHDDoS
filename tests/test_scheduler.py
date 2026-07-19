@@ -4,9 +4,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from utils import inventory, scheduler, storage
-from utils.osint.cyber_analysis import CyberAnalysisReport
-from utils.osint.model import OSINTMetadata
+from audit_platform import inventory, scheduler, storage
+from audit_platform.osint.cyber_analysis import CyberAnalysisReport
+from audit_platform.osint.model import OSINTMetadata
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def db_path():
         os.remove(path)
 
 
-@patch("utils.scheduler.CyberAnalysisAdapter")
+@patch("audit_platform.scheduler.CyberAnalysisAdapter")
 def test_run_fleet_audit_success(mock_adapter_class, db_path):
     mock_adapter = MagicMock()
     mock_adapter_class.return_value = mock_adapter

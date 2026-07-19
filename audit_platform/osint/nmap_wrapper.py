@@ -3,7 +3,7 @@ import uuid
 
 import nmap
 
-from utils.osint.model import HostInfo, OSINTMetadata, OSINTUnifiedResult, PortInfo
+from audit_platform.osint.model import HostInfo, OSINTMetadata, OSINTUnifiedResult, PortInfo
 
 logger = logging.getLogger(__name__)
 

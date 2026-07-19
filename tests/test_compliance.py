@@ -1,8 +1,8 @@
 import pytest
 
-from utils import compliance
-from utils.reporting import generate_html_report
-from utils.scoring import score_findings
+from audit_platform import compliance
+from audit_platform.reporting import generate_html_report
+from audit_platform.scoring import score_findings
 
 
 def test_clean_findings_full_compliance():

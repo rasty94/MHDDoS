@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
-from utils.osint.shodan_client import ShodanAdapter
-from utils.osint.theharvester_wrapper import TheHarvesterAdapter
+from audit_platform.osint.shodan_client import ShodanAdapter
+from audit_platform.osint.theharvester_wrapper import TheHarvesterAdapter
 
 
 def test_shodan_adapter_no_key():

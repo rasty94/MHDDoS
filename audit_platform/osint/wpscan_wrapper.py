@@ -4,7 +4,7 @@ import subprocess
 import uuid
 from typing import Optional
 
-from utils.osint.model import HostInfo, OSINTMetadata, OSINTUnifiedResult
+from audit_platform.osint.model import HostInfo, OSINTMetadata, OSINTUnifiedResult
 
 logger = logging.getLogger(__name__)
 

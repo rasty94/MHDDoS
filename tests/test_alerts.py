@@ -1,4 +1,4 @@
-from utils import alerts
+from audit_platform import alerts
 
 
 def _diff(delta, new_findings):

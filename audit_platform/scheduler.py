@@ -10,9 +10,9 @@ import threading
 import time
 from typing import Any, Dict, List, Optional
 
-from utils import alerts, inventory, storage
-from utils.osint.cyber_analysis import CyberAnalysisAdapter
-from utils.scoring import score_findings
+from audit_platform import alerts, inventory, storage
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter
+from audit_platform.scoring import score_findings
 
 logger = logging.getLogger(__name__)
 

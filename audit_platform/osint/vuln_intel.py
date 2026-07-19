@@ -20,7 +20,7 @@ from typing import List, Optional
 import requests
 from pydantic import BaseModel
 
-from utils.storage import DEFAULT_DB_PATH, _connect
+from audit_platform.storage import DEFAULT_DB_PATH, _connect
 
 logger = logging.getLogger(__name__)
 

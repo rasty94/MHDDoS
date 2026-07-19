@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from utils import inventory
+from audit_platform import inventory
 
 
 @pytest.fixture

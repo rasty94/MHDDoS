@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from utils.osint.cyber_analysis import CyberAnalysisAdapter, TLSCertificateInfo
+from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter, TLSCertificateInfo
 
 
 class FakeAnswer:

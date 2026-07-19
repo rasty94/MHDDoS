@@ -14,11 +14,11 @@ def client(monkeypatch):
     # Re-import modules so they pick up the patched DB path at module load.
     import importlib
 
-    from utils import storage as storage_mod
+    from audit_platform import storage as storage_mod
     importlib.reload(storage_mod)
-    from utils import inventory as inventory_mod
+    from audit_platform import inventory as inventory_mod
     importlib.reload(inventory_mod)
-    from utils import scheduler as scheduler_mod
+    from audit_platform import scheduler as scheduler_mod
     importlib.reload(scheduler_mod)
     import api as api_mod
     importlib.reload(api_mod)

@@ -1,4 +1,4 @@
-from utils.scoring import grade_for_score, score_findings
+from audit_platform.scoring import grade_for_score, score_findings
 
 
 def test_score_subtracts_severity_penalties():

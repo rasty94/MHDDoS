@@ -13,13 +13,13 @@ def cli(monkeypatch):
     os.remove(path)
     monkeypatch.setenv("MHCHECK_DB_PATH", path)
     # Reload storage/inventory/auth/scheduler and cli so they bind to the patched DB path.
-    from utils import storage as storage_mod
+    from audit_platform import storage as storage_mod
     importlib.reload(storage_mod)
-    from utils import inventory as inventory_mod
+    from audit_platform import inventory as inventory_mod
     importlib.reload(inventory_mod)
-    from utils import auth as auth_mod
+    from audit_platform import auth as auth_mod
     importlib.reload(auth_mod)
-    from utils import scheduler as scheduler_mod
+    from audit_platform import scheduler as scheduler_mod
     importlib.reload(scheduler_mod)
     import cli as cli_mod
     importlib.reload(cli_mod)
@@ -64,8 +64,8 @@ def test_user_create_invalid_role_fails(cli):
 
 def test_compliance_invalid_framework_fails(cli, monkeypatch):
     # Avoid network: stub the adapter to return an empty report.
-    from utils.osint.cyber_analysis import CyberAnalysisAdapter, CyberAnalysisReport
-    from utils.osint.model import OSINTMetadata
+    from audit_platform.osint.cyber_analysis import CyberAnalysisAdapter, CyberAnalysisReport
+    from audit_platform.osint.model import OSINTMetadata
 
     def fake_analyze(self, target):
         return CyberAnalysisReport(

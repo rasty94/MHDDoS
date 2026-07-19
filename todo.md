@@ -55,9 +55,9 @@ plataforma de auditoría (`audit_platform/`, `api.py`, `cli.py`, `utils/`)._
 
 ### Estructura (decisiones de fondo)
 
-- [ ] **Separar legado ofensivo de la plataforma**: mover `start.py`/`app.py`/`common_header.py` a `legacy/` (o a su propio repo). `audit_platform/__init__.py` ya declara la intención ("kept deliberately separate"); falta ejecutarla en el layout.
-- [ ] **Resolver la extracción a medias de `methods/`**: `methods/` era `start.py` a medio modularizar y nunca se cableó. Alternativa a borrarlo: terminar la extracción (que `start.py` importe de `methods/` y elimine sus copias inline). Una de las dos copias debe morir.
-- [ ] **Revisar el barrel `audit_platform/__init__.py`** (30 re-exports): infla el acoplamiento aparente (`CyberAnalysisAdapter`/`score_findings` como god-nodes de 46 aristas). Mantener solo si se publica como API pública; si no, importar directo de `utils.*`.
-- [ ] **Subir cohesión de "Audit Platform & Auth"** (score 0.06): mezcla auth + alerts + barrel. Al dividir el barrel, la comunidad se separa sola en piezas enfocadas.
+- [x] **Separar plataforma de legado en el layout**: movidos los 9 módulos de plataforma (`auth, scoring, storage, inventory, scheduler, compliance, alerts, reporting, ai_remediation`) + el subpaquete `osint/` de `utils/` a `audit_platform/`. `utils/` conserva solo legado + observabilidad (`common, proxy, networking, config_model, security`). Reescritos ~35 imports (formas `from utils.X`, `from utils import X`, y un `@patch("utils...")`). `audit_platform` deja de ser fachada y pasa a ser paquete real. Ruff limpio, 58/58 tests, smoke-test de barrel/entrypoints OK.
+- [x] **Resolver la extracción a medias de `methods/`**: resuelto borrando `methods/` (código muerto, ver arriba).
+- [x] **Revisar el barrel `audit_platform/__init__.py`**: cero callers internos (todos importaban `utils.*` directo); es la API pública pretendida (épica G). Se mantiene, pero ahora re-exporta módulos reales del propio paquete en vez de una fachada sobre `utils/`. Docstring actualizado.
+- [x] **Cohesión de "Audit Platform & Auth"**: la mezcla venía de que la plataforma vivía en `utils/`. Con el movimiento, la plataforma queda como paquete cohesionado y separado del legado.
 
 _Impacto estimado de los cortes: ~-1274 líneas, -1 fuente de deps, -5 archivos de ruido._
